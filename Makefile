@@ -2,15 +2,22 @@
 
 ROOT_DIR=$(shell pwd)
 TOOLCHAIN= \
-	binutils-sim \
+	build-binutils \
+	build-gcc \
+	
 
 all: showtime $(TOOLCHAIN)
 
 showtime:
 	@date
 
-binutils-sim:
-# $(ROOT_DIR)/binutils-sim.mak
+build-binutils:
 	@echo "Building binutils ..."
 	@cd $(ROOT_DIR); \
 	make -f binutils.mak
+
+build-gcc: build-binutils
+	@echo "Building gcc ..."
+	@cd $(ROOT_DIR); \
+	make -f gcc.mak
+	

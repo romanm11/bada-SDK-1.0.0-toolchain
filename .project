@@ -15,7 +15,13 @@
 				</dictionary>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.imp.box.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.eclipse.imp.box.nature</nature>
 	</natures>
 </projectDescription>

@@ -3,7 +3,8 @@ include common.mak
 
 VERSION=4.4-157
 SRC_TAR=$(ROOT_DIR)/src/binutils-$(VERSION).tar.bz2
-SRC_DIR=$(ROOT_DIR)/build/src/binutils-stable
+BUILD_ROOT=$(ROOT_DIR)/build/binutils
+SRC_DIR=$(BUILD_ROOT)/binutils-stable
 
 
 # Конфігурація для симулятора
@@ -16,60 +17,59 @@ CONFIGURE_SIM=\
     --enable-poison-system-directories
 
 
-all: binutils-src
+all: build
 	@echo "binutils : done"
 
-binutils-src: $(SRC_DIR) \
-	$(ROOT_DIR)/build/binutils/configure-sim.d \
-	$(ROOT_DIR)/build/binutils/build-sim.d \
-	$(ROOT_DIR)/build/binutils/install-sim.d
+build: $(SRC_DIR) \
+	$(BUILD_ROOT)/configure-sim.d \
+	$(BUILD_ROOT)/build-sim.d \
+	$(BUILD_ROOT)/install-sim.d
 
 
 # Створенння директорії з сорсами
-$(SRC_DIR): $(ROOT_DIR)/build/src $(SRC_TAR) $(ROOT_DIR)/build/binutils/src.d
+$(SRC_DIR): $(SRC_TAR) $(BUILD_ROOT)/src.d
 	@echo "binutils : extracting sources ..."
-	@rm -f "$(ROOT_DIR)/build/binutils/src.d"
-	@if [ ! -d "$(ROOT_DIR)/build/binutils" ]; then mkdir "$(ROOT_DIR)/build/binutils"; fi;
-	@if [ ! -d "$(ROOT_DIR)/build" ]; then mkdir "$(ROOT_DIR)/build"; fi;
-	@if [ ! -d "$(ROOT_DIR)/build/src" ]; then mkdir "$(ROOT_DIR)/build/src"; fi;
+	@rm -f "$(BUILD_ROOT)/src.d"
+	@if [ ! -d "$(BUILD_ROOT)" ]; then mkdir "$(BUILD_ROOT)"; fi;
 	@rm -fR "$(SRC_DIR)"
 	@mkdir "$(SRC_DIR)"
 	@cd "$(SRC_DIR)/.."; \
 		tar xf "$(SRC_TAR)"
 	@touch $(SRC_DIR)
-	@touch -r "$(SRC_TAR)" "$(ROOT_DIR)/build/binutils/src.d"
+	@touch -r "$(SRC_TAR)" "$(BUILD_ROOT)/src.d"
 
 "$(SRC_TAR)":
 	@echo "missing binutils sources : $(SRC_TAR)" 1>&2
 	exit 1
 
-$(ROOT_DIR)/build/binutils/src.d :
+$(BUILD_ROOT)/src.d :
 	@if [ ! -f "$@" ]; then rm -fR $(SRC_DIR); fi;
 
 # конфігурація для симулятора
-$(ROOT_DIR)/build/binutils/configure-sim.d: $(ROOT_DIR)/build/binutils/src.d
+$(BUILD_ROOT)/configure-sim.d: $(BUILD_ROOT)/src.d
 	@echo "binutils : configure-sim ..."
-	@if [ ! -d "$(ROOT_DIR)/build/binutils/sim" ]; then mkdir "$(ROOT_DIR)/build/binutils/sim"; fi;
-	cd "$(ROOT_DIR)/build/binutils/sim"; \
+	@if [ ! -d "$(BUILD_ROOT)/sim" ]; then mkdir "$(BUILD_ROOT)/sim"; fi;
+	cd "$(BUILD_ROOT)/sim"; \
 	"$(SRC_DIR)/configure" \
 		--target=$(TARGET_SIM) \
 		$(CONFIGURE_SIM)
-	@touch $(ROOT_DIR)/build/binutils/configure-sim.d
+	@touch $(BUILD_ROOT)/configure-sim.d
 
 # білдання для симулятора
-$(ROOT_DIR)/build/binutils/build-sim.d: $(ROOT_DIR)/build/binutils/configure-sim.d
+$(BUILD_ROOT)/build-sim.d: $(BUILD_ROOT)/configure-sim.d
 	@echo "binutils : build-sim ..."
-	@cd "$(ROOT_DIR)/build/binutils/sim"; \
+	@cd "$(BUILD_ROOT)/sim"; \
 	make
-	@touch $(ROOT_DIR)/build/binutils/build-sim.d
+	@touch $(BUILD_ROOT)/build-sim.d
 
 # інсталяція для симулятора
 # тут відбуваються маніпуляції з локалом (LANG, в зв'язку з тим, що десь хтось наглючив, і з локалом "cs_CZ.UTF-8" то допомагає
-$(ROOT_DIR)/build/binutils/install-sim.d: $(ROOT_DIR)/build/binutils/build-sim.d
+$(BUILD_ROOT)/install-sim.d: $(BUILD_ROOT)/build-sim.d
 	@echo "binutils : install-sim ..."
-	@cd "$(ROOT_DIR)/build/binutils/sim"; \
+	@cd "$(BUILD_ROOT)/sim"; \
 	export OLD_LANG=$(LANG); \
 	export LANG=cs_CZ.UTF-8; \
 	make install prefix=$(ROOT_DIR)/install; \
 	export LANG=$(OLD_LANG)
-	@touch $(ROOT_DIR)/build/binutils/install-sim.d
+	strip $(ROOT_DIR)/install/bin/*
+	@touch $(BUILD_ROOT)/install-sim.d
