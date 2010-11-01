@@ -30,9 +30,9 @@ CONFIGURE_SIM=\
 	--disable-nls \
 	--prefix=/opt/codesourcery \
 	--with-sysroot=/opt/codesourcery/i686-mingw32 \
-	--with-build-sysroot=$(ROOT_DIR)/install \
+	--with-build-sysroot=$(ROOT_DIR)/install/Win32 \
 	--disable-libgomp \
-	--with-build-time-tools=$(ROOT_DIR)/install/i686-mingw32/bin \
+	--with-build-time-tools=$(ROOT_DIR)/install/Win32/i686-mingw32/bin \
 	
 #	--with-host-libstdcxx='-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm' \
 #	--with-cloog=/scratch/nathan/samsung/obj/host-libs-4.4-41-i686-mingw32-i686-mingw32/usr \
@@ -98,10 +98,10 @@ $(BUILD_ROOT)/build-sim.d: $(BUILD_ROOT)/configure-sim.d $(BUILD_ROOT)/samsung-t
 	@echo "gcc : build-sim ..."
 	@if [ ! -d $(BUILD_ROOT)/sim/gcc ]; then mkdir -p $(BUILD_ROOT)/sim/gcc; fi
 	@if [ ! -d $(BUILD_ROOT)/gcc-4.4/winsup ]; then mkdir -p $(BUILD_ROOT)/gcc-4.4/winsup; fi
-	@if [ ! -h $(BUILD_ROOT)/gcc-4.4/winsup/mingw ]; then ln -s $(ROOT_DIR)/install/mingw $(BUILD_ROOT)/gcc-4.4/winsup/mingw; fi
-	@cp -n $(ROOT_DIR)/install/lib/*.o $(BUILD_ROOT)/sim/gcc
-	@cp -n $(ROOT_DIR)/install/lib/gcc/i686-mingw32/4.4.1/*.o $(BUILD_ROOT)/sim/gcc
-	@cp -n $(ROOT_DIR)/install/lib/gcc/i686-mingw32/4.4.1/libgcc.a $(BUILD_ROOT)/sim/gcc
+	@if [ ! -h $(BUILD_ROOT)/gcc-4.4/winsup/mingw ]; then ln -s $(ROOT_DIR)/install/Win32/mingw $(BUILD_ROOT)/gcc-4.4/winsup/mingw; fi
+	@cp -n $(ROOT_DIR)/install/Win32/lib/*.o $(BUILD_ROOT)/sim/gcc
+	@cp -n $(ROOT_DIR)/install/Win32/lib/gcc/i686-mingw32/4.4.1/*.o $(BUILD_ROOT)/sim/gcc
+	@cp -n $(ROOT_DIR)/install/Win32/lib/gcc/i686-mingw32/4.4.1/libgcc.a $(BUILD_ROOT)/sim/gcc
 	@cd "$(BUILD_ROOT)/sim"; \
 	make -j4
 	@touch $(BUILD_ROOT)/build-sim.d
@@ -113,16 +113,16 @@ $(BUILD_ROOT)/install-sim.d: $(BUILD_ROOT)/build-sim.d
 	@cd "$(BUILD_ROOT)/sim"; \
 	export OLD_LANG=$(LANG); \
 	export LANG=cs_CZ.UTF-8; \
-	make install prefix=$(ROOT_DIR)/install; \
+	make install prefix=$(ROOT_DIR)/install/Win32; \
 	export LANG=$(OLD_LANG)
-	@mv $(ROOT_DIR)/install/mingw $(ROOT_DIR)/install/i686-mingw32 
+	@mv $(ROOT_DIR)/install/Win32/mingw $(ROOT_DIR)/install/Win32/i686-mingw32 
 	@touch $(BUILD_ROOT)/install-sim.d
 
 # копіює необхідні дані з інсталяції самсунга
 $(BUILD_ROOT)/samsung-toolchain-data-sim.d: $(ROOT_DIR)/src/samsung-toolchain-data-sim.tar.bz2
 	@echo "samsung-toolchain-data : extracting ..."
 	@rm -f "$@"
-	@cd "$(ROOT_DIR)/install"; \
+	@cd "$(ROOT_DIR)/install/Win32"; \
 		tar xf $(ROOT_DIR)/src/samsung-toolchain-data-sim.tar.bz2
 
 	@touch "$@"

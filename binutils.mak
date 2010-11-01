@@ -69,7 +69,7 @@ $(BUILD_ROOT)/install-sim.d: $(BUILD_ROOT)/build-sim.d
 	@cd "$(BUILD_ROOT)/sim"; \
 	export OLD_LANG=$(LANG); \
 	export LANG=cs_CZ.UTF-8; \
-	make install prefix=$(ROOT_DIR)/install; \
+	make install prefix=$(ROOT_DIR)/install/Win32; \
 	export LANG=$(OLD_LANG)
-	strip $(ROOT_DIR)/install/bin/*
+	strip $(ROOT_DIR)/install/Win32/bin/*
 	@touch $(BUILD_ROOT)/install-sim.d
